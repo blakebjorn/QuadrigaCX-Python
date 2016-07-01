@@ -4,10 +4,10 @@ import hmac
 import hashlib
 
 class Quadriga:
-    def __init__(self):
-        self.apiKey = "EXAMPLE"
-        self.apiSecret = "EXAMPLEEXAMPLEEXAMPLE"
-        self.clientID = 999999
+    def __init__(self, apiKey='string', apiSecret='string', clientID='integer'):
+        self.apiKey = apiKey
+        self.apiSecret = apiSecret
+        self.clientID = clientID
 
     def generate_signature(self):
         #uses ms for nonce to avoid collision
