@@ -26,3 +26,6 @@ quad.bitcoin_withdrawal(amount, address)
 quad.ether_deposit()
 quad.ether_withdrawal(amount, address)
 ```
+
+###Donate
+1NCEiwtzTwAM2jsiWtCeqspE1yvNbgtyAC
