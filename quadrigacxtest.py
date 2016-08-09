@@ -44,7 +44,22 @@ class TestQuadrigaCx(unittest.TestCase):
     def test_ether_withdrawal(self):
         self.assertEqual(True, True) #dummy test
 
+    def test__handle_response(self):
+        self.assertEqual(True, True)
+        quadriga = quadrigacx.Quadriga()
 
+        successful_response = FakeResponse(status_code = 200, text = "Success")
+        returnval = quadriga._handle_response(successful_response)
+        self.assertEqual(returnval, "Success")
+
+        successful_response = FakeResponse(status_code = 401, text = "Failed")
+        returnval = quadriga._handle_response(successful_response)
+        self.assertEqual(returnval['error'], 'code: 401')
+
+class FakeResponse():
+    def __init__(self, status_code = 200, text="Default text"):
+        self.status_code = status_code
+        self.text = text
 
 if __name__ == '__main__':
     unittest.main()
