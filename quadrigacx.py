@@ -113,7 +113,7 @@ class Quadriga:
 
     def _handle_response(self, response):
         if response.status_code == 200:
-            return response
+            return response.json()
         else:
             print('error '+ ' code: ' + str(response.status_code))
             return {'error': 'code: ' + str(response.status_code)}
