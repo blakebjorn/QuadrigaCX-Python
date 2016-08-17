@@ -1,9 +1,12 @@
 import quadrigacx
 import unittest
+import requests
 from unittest.mock import patch
 from unittest.mock import MagicMock
 
 class TestQuadrigaCx(unittest.TestCase):
+
+
     def test_generate_signature(self):
         self.assertEqual(True, True) #dummy test
 
@@ -13,8 +16,27 @@ class TestQuadrigaCx(unittest.TestCase):
     def test_get_user_transactions(self):
         self.assertEqual(True, True) #dummy test
 
-    def test_get_order_book(self):
-        self.assertEqual(True, True) #dummy test
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.get') #mock the get method of requests for the duration of this method
+    def test_get_order_book(self, requestsget, _handle_response):
+        api_definition ={
+            'method': 'get',
+            'url': 'https://api.quadrigacx.com/v2/order_book',
+            'query_parameters': ['book', 'group']
+        }
+        def mock_get_request(url, params):
+            print("Fake get request method called")
+            self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+            for api_parameter in api_definition['query_parameters']:
+                self.assertNotEqual(params[api_parameter], None) #make sure all query_parameters are passed to the uut
+
+        requestsget.side_effect = mock_get_request #define the function to be called, instead of the original requests.get
+        _handle_response.side_effect = lambda response, parse: print('Called mock self._handle_response')
+
+        quadriga = quadrigacx.Quadriga();
+
+        quadriga.get_order_book()
+        print(requestsget.call_count)
 
     def get_current_trading_info(self):
         self.assertEqual(True, True) #dummy test
@@ -93,6 +115,8 @@ class FakeResponse():
     def json(self):
         #fake json method for spy
         pass
+
+
 
 if __name__ == '__main__':
     unittest.main()

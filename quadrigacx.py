@@ -32,14 +32,12 @@ class Quadriga:
                                  data={'key': self.apiKey, 'signature': signature, 'nonce': nonce, 'offset':offset,'limit':limit,'sort':sort,'book':book})
         return self._handle_response(response, parse = self.parseDicts)
 
-    def get_order_book(self):
-        signature, nonce = self.generate_signature()
-        response = requests.post('https://api.quadrigacx.com/v2/order_book', data={'key':self.apiKey,'signature':signature,'nonce':nonce})
+    def get_order_book(self, book='btc_cad', group=1):
+        response = requests.get('https://api.quadrigacx.com/v2/order_book', params={'book':book, 'group':group})
         return self._handle_response(response, parse = self.parseDicts)
 
-    def get_current_trading_info(self):
-        signature, nonce = self.generate_signature()
-        response = requests.post('https://api.quadrigacx.com/v2/ticker', data={'key':self.apiKey,'signature':signature,'nonce':nonce})
+    def get_current_trading_info(self, book='btc_cad'):        
+        response = requests.get('https://api.quadrigacx.com/v2/ticker', params={'book':book})
         return self._handle_response(response, parse = self.parseDicts)
 
     def get_open_orders(self, book='btc_cad'):
@@ -114,7 +112,7 @@ class Quadriga:
                 return response.json()
             else:
                 return response.text
-        else:            
+        else:
             if parse:
                 return {'error': 'code: ' + str(response.status_code)}
             else:
