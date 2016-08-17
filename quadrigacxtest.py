@@ -25,24 +25,59 @@ class TestQuadrigaCx(unittest.TestCase):
             'query_parameters': ['book', 'group']
         }
         def mock_get_request(url, params):
-            print("Fake get request method called")
             self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
             for api_parameter in api_definition['query_parameters']:
                 self.assertNotEqual(params[api_parameter], None) #make sure all query_parameters are passed to the uut
 
         requestsget.side_effect = mock_get_request #define the function to be called, instead of the original requests.get
-        _handle_response.side_effect = lambda response, parse: print('Called mock self._handle_response')
+        _handle_response.side_effect = lambda response, parse: None #mock _handle_response will do nothing
 
         quadriga = quadrigacx.Quadriga();
 
         quadriga.get_order_book()
-        print(requestsget.call_count)
+        self.assertEqual(requestsget.call_count, 1)
 
-    def get_current_trading_info(self):
-        self.assertEqual(True, True) #dummy test
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.get') #mock the get method of requests for the duration of this method
+    def test_get_current_trading_info(self, requestsget, _handle_response):
+        api_definition ={
+            'method': 'get',
+            'url': 'https://api.quadrigacx.com/v2/ticker',
+            'query_parameters': ['book']
+        }
+        def mock_get_request(url, params):
+            self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+            for api_parameter in api_definition['query_parameters']:
+                self.assertNotEqual(params[api_parameter], None) #make sure all query_parameters are passed to the uut
 
-    def test_get_open_orders(self):
-        self.assertEqual(True, True) #dummy test
+        requestsget.side_effect = mock_get_request #define the function to be called, instead of the original requests.get
+        _handle_response.side_effect = lambda response, parse: None
+
+        quadriga = quadrigacx.Quadriga();
+        quadriga.get_current_trading_info()
+        self.assertEqual(requestsget.call_count, 1)
+
+    @patch('quadrigacx.Quadriga.generate_signature')
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.post')
+    def test_get_open_orders(self, requestspost, _handle_response, generate_signature):
+        api_definition ={
+            'method': 'post',
+            'url': 'https://api.quadrigacx.com/v2/open_orders',
+            'query_parameters': ['book']
+        }
+        def mock_post_request(url, data):
+            self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+            self.assert_payload_data_dictionary(data)
+
+
+        generate_signature.side_effect = fake_signature
+        requestspost.side_effect = mock_post_request #define the function to be called, instead of the original requests.get
+        _handle_response.side_effect = lambda response, parse: None #handle response does nothing
+
+        quadriga = quadrigacx.Quadriga();
+        quadriga.get_open_orders()
+        self.assertEqual(requestspost.call_count, 1)
 
     def test_lookup_order(self):
         self.assertEqual(True, True) #dummy test
@@ -107,6 +142,14 @@ class TestQuadrigaCx(unittest.TestCase):
         self.assertEqual(type(returns), dict) # returns a dictionary
         self.assertTrue('401' in returns['error']) #string contains the error code
 
+    ##helper methods
+    def assert_query_parameters(self, params, api_definition):
+        for api_parameter in api_definition['query_parameters']:
+            self.assertNotEqual(params[api_parameter], None) #make sure all query_parameters are passed to the uut
+    def assert_payload_data_dictionary(self, datadictionary):
+        payload_dictionarykeys= ['key', 'signature', 'nonce', 'book']
+        for payload_key in payload_dictionarykeys: #payload key found in the data arguments
+            self.assertNotEqual(datadictionary[payload_key], None) #make sure the data dictionary has all the required keys
 class FakeResponse():
     def __init__(self, status_code = 200, text="Default text", parse = False):
         self.status_code = status_code
@@ -116,6 +159,9 @@ class FakeResponse():
         #fake json method for spy
         pass
 
+
+def fake_signature():
+    return "FakeSignature", "FakeNonce"
 
 
 if __name__ == '__main__':
