@@ -64,11 +64,12 @@ class TestQuadrigaCx(unittest.TestCase):
         api_definition ={
             'method': 'post',
             'url': 'https://api.quadrigacx.com/v2/open_orders',
-            'query_parameters': ['book']
+            'query_parameters': None,
+            'data' : ['key', 'signature', 'nonce', 'book']
         }
         def mock_post_request(url, data):
             self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
-            self.assert_payload_data_dictionary(data)
+            self.assert_payload_data_dictionary(data, api_definition)
 
 
         generate_signature.side_effect = fake_signature
@@ -79,8 +80,16 @@ class TestQuadrigaCx(unittest.TestCase):
         quadriga.get_open_orders()
         self.assertEqual(requestspost.call_count, 1)
 
-    def test_lookup_order(self):
-        self.assertEqual(True, True) #dummy test
+    @patch('quadrigacx.Quadriga.generate_signature')
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.post')
+    def test_lookup_order(self, requestspost, _handle_response, generate_signature):
+        api_definition ={
+            'method': 'post',
+            'url': 'https://api.quadrigacx.com/v2/open_orders',
+            'query_parameters': None,
+
+        }
 
     def test_cancel_order(self):
         self.assertEqual(True, True) #dummy test
@@ -146,10 +155,11 @@ class TestQuadrigaCx(unittest.TestCase):
     def assert_query_parameters(self, params, api_definition):
         for api_parameter in api_definition['query_parameters']:
             self.assertNotEqual(params[api_parameter], None) #make sure all query_parameters are passed to the uut
-    def assert_payload_data_dictionary(self, datadictionary):
-        payload_dictionarykeys= ['key', 'signature', 'nonce', 'book']
-        for payload_key in payload_dictionarykeys: #payload key found in the data arguments
-            self.assertNotEqual(datadictionary[payload_key], None) #make sure the data dictionary has all the required keys
+    def assert_payload_data_dictionary(self, data, api_definition):
+        required_payload = api_definition['data']
+        actual_payload = data
+        for key in required_payload: #payload key found in the data arguments
+            self.assertNotEqual(actual_payload[key], None) #make sure the data dictionary has all the required keys
 class FakeResponse():
     def __init__(self, status_code = 200, text="Default text", parse = False):
         self.status_code = status_code
