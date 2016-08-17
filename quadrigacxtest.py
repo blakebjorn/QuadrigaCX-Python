@@ -86,16 +86,68 @@ class TestQuadrigaCx(unittest.TestCase):
     def test_lookup_order(self, requestspost, _handle_response, generate_signature):
         api_definition ={
             'method': 'post',
-            'url': 'https://api.quadrigacx.com/v2/open_orders',
+            'url': 'https://api.quadrigacx.com/v2/lookup_order',
             'query_parameters': None,
-
+            'data': ['key', 'signature', 'nonce', 'id']
         }
+        def mock_post_request(url, data):
+            self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+            self.assert_payload_data_dictionary(data, api_definition)
 
-    def test_cancel_order(self):
-        self.assertEqual(True, True) #dummy test
+        generate_signature.side_effect = fake_signature
+        requestspost.side_effect = mock_post_request #define the function to be called, instead of the original requests.get
+        _handle_response.side_effect = lambda response, parse: None #handle response does nothing
 
-    def test_buy_order_limit(self):
-        self.assertEqual(True, True) #dummy test
+        quadriga = quadrigacx.Quadriga();
+        quadriga.lookup_order()
+        self.assertEqual(requestspost.call_count, 1)
+
+    @patch('quadrigacx.Quadriga.generate_signature')
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.post')
+    def test_cancel_order(self, requestspost, _handle_response, generate_signature):
+        api_definition ={
+            'method': 'post',
+            'url': 'https://api.quadrigacx.com/v2/cancel_order',
+            'query_parameters': None,
+            'data': ['key', 'signature', 'nonce', 'id']
+        }
+        def mock_post_request(url, data):
+            self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+            self.assert_payload_data_dictionary(data, api_definition)
+
+        generate_signature.side_effect = fake_signature
+        requestspost.side_effect = mock_post_request #define the function to be called, instead of the original requests.get
+        _handle_response.side_effect = lambda response, parse: None #handle response does nothing
+
+        quadriga = quadrigacx.Quadriga();
+        quadriga.cancel_order()
+        self.assertEqual(requestspost.call_count, 1)
+
+    @patch('quadrigacx.Quadriga.generate_signature')
+    @patch('quadrigacx.Quadriga._handle_response')
+    @patch('requests.post')
+    def test_buy_order_limit(self, requestspost, _handle_response, generate_signature):
+            api_definition ={
+                'method': 'post',
+                'url': 'https://api.quadrigacx.com/v2/buy',
+                'query_parameters': None,
+                'data': ['key', 'signature', 'nonce', 'amount', 'price', 'book']
+            }
+            def mock_post_request(url, data):
+                self.assertEqual(url, api_definition['url']) #make sure the URL corresponds to the one give by Quadrigacx
+                self.assert_payload_data_dictionary(data, api_definition)
+                self.assertEqual(data['amount'], 0.01)
+                self.assertEqual(data['price'], 0.15)
+
+            generate_signature.side_effect = fake_signature
+            requestspost.side_effect = mock_post_request #define the function to be called, instead of the original requests.get
+            _handle_response.side_effect = lambda response, parse: None #handle response does nothing
+
+            quadriga = quadrigacx.Quadriga();
+            quadriga.buy_order_limit(0.01, 0.15)
+            self.assertEqual(requestspost.call_count, 1)
+
 
     def test_buy_order_market(self):
         self.assertEqual(True, True) #dummy test

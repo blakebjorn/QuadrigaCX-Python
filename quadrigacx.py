@@ -36,7 +36,7 @@ class Quadriga:
         response = requests.get('https://api.quadrigacx.com/v2/order_book', params={'book':book, 'group':group})
         return self._handle_response(response, parse = self.parseDicts)
 
-    def get_current_trading_info(self, book='btc_cad'):        
+    def get_current_trading_info(self, book='btc_cad'):
         response = requests.get('https://api.quadrigacx.com/v2/ticker', params={'book':book})
         return self._handle_response(response, parse = self.parseDicts)
 
