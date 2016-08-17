@@ -21,6 +21,20 @@ class Quadriga:
         signature = hmac.new(secret.encode(), msg=msg.encode(), digestmod=hashlib.sha256).hexdigest()
         return signature, nonce
 
+    ##PUBLIC FUNCTIONS
+    def get_public_transactions(self, book='btc_cad', time='hour'):
+        response = requests.get('https://api.quadrigacx.com/v2/transactions', params={'book':book, 'time':time})
+        return self._handle_response(response, parse = self.parseDicts)
+
+    def get_order_book(self, book='btc_cad', group=1):
+        response = requests.get('https://api.quadrigacx.com/v2/order_book', params={'book':book, 'group':group})
+        return self._handle_response(response, parse = self.parseDicts)
+
+    def get_current_trading_info(self, book='btc_cad'):
+        response = requests.get('https://api.quadrigacx.com/v2/ticker', params={'book':book})
+        return self._handle_response(response, parse = self.parseDicts)
+
+    ## PRIVATE FUNCTIONS
     def get_account_balance(self):
         signature, nonce = self.generate_signature()
         response = requests.post('https://api.quadrigacx.com/v2/balance', data={'key':self.apiKey,'signature':signature,'nonce':nonce})
@@ -30,14 +44,6 @@ class Quadriga:
         signature, nonce = self.generate_signature()
         response = requests.post('https://api.quadrigacx.com/v2/user_transactions',
                                  data={'key': self.apiKey, 'signature': signature, 'nonce': nonce, 'offset':offset,'limit':limit,'sort':sort,'book':book})
-        return self._handle_response(response, parse = self.parseDicts)
-
-    def get_order_book(self, book='btc_cad', group=1):
-        response = requests.get('https://api.quadrigacx.com/v2/order_book', params={'book':book, 'group':group})
-        return self._handle_response(response, parse = self.parseDicts)
-
-    def get_current_trading_info(self, book='btc_cad'):
-        response = requests.get('https://api.quadrigacx.com/v2/ticker', params={'book':book})
         return self._handle_response(response, parse = self.parseDicts)
 
     def get_open_orders(self, book='btc_cad'):
