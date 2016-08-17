@@ -13,6 +13,12 @@ class TestQuadrigaCx(unittest.TestCase):
     def test_get_user_transactions(self):
         self.assertEqual(True, True) #dummy test
 
+    def test_get_order_book(self):
+        self.assertEqual(True, True) #dummy test
+
+    def get_current_trading_info(self):
+        self.assertEqual(True, True) #dummy test
+
     def test_get_open_orders(self):
         self.assertEqual(True, True) #dummy test
 
