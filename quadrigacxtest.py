@@ -50,27 +50,19 @@ class TestQuadrigaCx(unittest.TestCase):
         def _assert_handle_response_200(oFakeResponse, expectation=None):
             returnval = quadriga._handle_response(oFakeResponse, oFakeResponse.parse)
             self.assertEqual(returnval, expectation)
-        def _assert_handle_response_401(oFakeResponse):
-            if oFakeResponse.parse:
-                a
-
-
-
-
-
 
         quadriga = quadrigacx.Quadriga()
         #############status_code is 200
         #with parse = False
         fake_response = FakeResponse(200, "Success", False)
-        fake_response.json = MagicMock(return_value=None)
+        fake_response.json = MagicMock(return_value=None) #our mock json method returns nothing
 
         _assert_handle_response_200(fake_response, "Success")
         fake_response.json.assert_not_called() #when parse = False, the response.json() method should not be called
 
         #with parse = True
         fake_response = FakeResponse(200, "Success", True)
-        fake_response.json = MagicMock(return_value=None)
+        fake_response.json = MagicMock(return_value=None)#our mock json method returns nothing
 
         _assert_handle_response_200(fake_response, None) #nothing is returned in .json() method of FakeResponse class
         self.assertEqual(fake_response.json.call_count, 1) #check that the .json() method was called on the mock
@@ -86,7 +78,7 @@ class TestQuadrigaCx(unittest.TestCase):
         returns = quadriga._handle_response(fake_response, True)
         self.assertEqual(type(returns), dict) # returns a dictionary
         self.assertTrue('401' in returns['error']) #string contains the error code
-    
+
 class FakeResponse():
     def __init__(self, status_code = 200, text="Default text", parse = False):
         self.status_code = status_code
