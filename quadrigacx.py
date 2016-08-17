@@ -114,8 +114,7 @@ class Quadriga:
                 return response.json()
             else:
                 return response.text
-        else:
-            print('error '+ ' code: ' + str(response.status_code))
+        else:            
             if parse:
                 return {'error': 'code: ' + str(response.status_code)}
             else:
